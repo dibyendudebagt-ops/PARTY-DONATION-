@@ -61,7 +61,7 @@
                 </div>
                 
                 <!-- Donation Trigger Button -->
-                <button onclick="openDonationModal('LOTUS')" 
+                <button type="button" onclick="window.openDonationModal('LOTUS')" 
                    class="font-bold text-sm bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white px-5 py-2.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-orange-600/20 border border-orange-500/30 flex items-center gap-2">
                     💸 Please Donate to support Lotus
                 </button>
@@ -82,7 +82,7 @@
                 </div>
                 
                 <!-- Donation Trigger Button -->
-                <button onclick="openDonationModal('COCKROACH')" 
+                <button type="button" onclick="window.openDonationModal('COCKROACH')" 
                    class="mt-6 font-bold text-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-5 py-2.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-emerald-600/20 border border-emerald-500/30 flex items-center gap-2">
                     💸 Please Donate to support Cockroach
                 </button>
@@ -137,7 +137,7 @@
         <div class="bg-zinc-900 border-2 border-zinc-800 rounded-3xl w-full max-w-md p-6 shadow-2xl">
             <div class="flex justify-between items-center border-b border-zinc-800 pb-3 mb-4">
                 <h4 id="modalPartyTitle" class="text-xl font-black uppercase tracking-wider text-white">Party Funding Processing</h4>
-                <button type="button" onclick="closeDonationModal()" class="text-zinc-500 hover:text-white font-bold text-xl">&times;</button>
+                <button type="button" onclick="window.closeDonationModal()" class="text-zinc-500 hover:text-white font-bold text-xl">&times;</button>
             </div>
             
             <form id="modalForm" class="space-y-4">
@@ -147,6 +147,151 @@
                     <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Donor Identification (UPI ID / Account No.)</label>
                     <input type="text" id="donorIdentity" placeholder="e.g., donor@upi or Account 50100XXXXXX" required
                            class="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-yellow-500 font-mono">
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Contribution Amount (INR ₹)</label>
+                    <input type="number" id="donorAmount" min="1" placeholder="Enter amount in ₹" required
+                           class="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-yellow-500 font-bold text-lg">
+                </div>
+                
+                <div class="p-3 bg-zinc-950 rounded-xl border border-zinc-800 text-xs text-zinc-400 space-y-1">
+                    <p class="font-bold text-zinc-300">Transaction Destination Parameters:</p>
+                    <p>🎯 Address: <span class="text-yellow-500 font-mono">9612032475@kotakbank</span></p>
+                    <p>🏛️ Institution: Kotak Mahindra Bank Platform Routing</p>
+                </div>
+                
+                <button type="submit" 
+                        class="w-full bg-yellow-600 hover:bg-yellow-500 text-zinc-950 font-black uppercase tracking-wider py-3 rounded-xl shadow-lg transition-colors text-sm">
+                    Proceed & Securely Save to Firebase
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- CLIENT SIDE ARCHITECTURE AND DATA PIPELINE INTEGRATION APPLICATION LOGIC -->
+    <!-- ========================================================================= -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAn5sKpnBd4GzB2I2RdFafJ7iuSVbd73L0",
+            authDomain: "party-donation.firebaseapp.com",
+            projectId: "party-donation",
+            storageBucket: "party-donation.firebasestorage.app",
+            messagingSenderId: "457929088505",
+            appId: "1:457929088505:web:eef86062356614fed7b128",
+            measurementId: "G-7QZ0X7KMH5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Explicit Global Scope Binding for Modules
+        window.openDonationModal = function(partyLabel) {
+            document.getElementById('modalSelectedParty').value = partyLabel;
+            document.getElementById('modalPartyTitle').innerText = `Contribute To ${partyLabel}`;
+            document.getElementById('donationModal').classList.remove('hidden');
+        };
+
+        window.closeDonationModal = function() {
+            document.getElementById('donationModal').classList.add('hidden');
+            document.getElementById('modalForm').reset();
+        };
+
+        // Core Submission Matrix for Ballot Scoring
+        document.getElementById('voteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const lotusVal = parseInt(document.getElementById('LotusPoints').value) || 0;
+            const cockroachVal = parseInt(document.getElementById('CockroachPoints').value) || 0;
+
+            if ((lotusVal + cockroachVal) !== 100) {
+                alert(`Validation Matrix Break: Total points must be exactly 100! Currently it equals ${lotusVal + cockroachVal}.`);
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "votes"), {
+                    LotusPoints: lotusVal,
+                    CockroachPoints: cockroachVal,
+                    timestamp: serverTimestamp()
+                });
+                alert("Poll Ballot Document Registered Successfully inside Firebase!");
+                document.getElementById('voteForm').reset();
+            } catch (error) {
+                console.error("Infrastructure Write Failure:", error);
+                alert("Failed to save ballot to database repository.");
+            }
+        });
+
+        // Donation Submission Handler: Saves donor id explicitly to Firebase + PDF Generation
+        document.getElementById('modalForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const selectedParty = document.getElementById('modalSelectedParty').value || "PARTY";
+            const donorId = document.getElementById('donorIdentity').value || "ANONYMOUS";
+            const amount = document.getElementById('donorAmount').value || "0";
+            
+            const upiGatewayUrl = `upi://pay?pa=9612032475@kotakbank&pn=Voting%20Platform&am=${amount}&cu=INR&tn=Contribution%20Fund%20For%20${selectedParty}`;
+            
+            try {
+                // Step 1: Explicitly log transaction parameters and donor id directly to Cloud Firestore
+                await addDoc(collection(db, "donations"), {
+                    donorId: donorId,
+                    donatedPartyLabel: selectedParty,
+                    donatedAmount: parseFloat(amount),
+                    timestamp: serverTimestamp()
+                });
+                
+                // Formatted local Currency syntax variable computation
+                const formattedCashValue = `₹${parseFloat(amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+
+                // Step 2: Inject raw HTML blueprint template dynamically directly into the execution workspace
+                const dynamicWorkspaceNode = document.createElement('div');
+                dynamicWorkspaceNode.id = "runtime-printout-wrapper";
+                dynamicWorkspaceNode.style.cssText = "position: fixed; top: 0; left: 0; width: 1024px; z-index: -9999; pointer-events: none; opacity: 1; background: #000000;";
+                
+                dynamicWorkspaceNode.innerHTML = `
+                    <div id="receipt-print-canvas" style="width: 750px; padding: 40px; background-color: #fafaf9; color: #1c1917; font-family: 'Times New Roman', Times, serif; border: 12px double #1c1917; box-sizing: border-box; margin: 0 auto;">
+                        <div style="border: 2px solid #78716c; padding: 30px; box-sizing: border-box; text-align: center; background: #ffffff;">
+                            <div style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.25em; color: #78716c; margin-bottom: 5px;">
+                                Official Treasury Document
+                            </div>
+                            <div style="font-size: 24pt; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #1c1917; margin-bottom: 25px; border-bottom: 3px double #1c1917; padding-bottom: 15px;">
+                                Certificate of Contribution
+                            </div>
+                            <div style="font-size: 24pt; color: #d97706; margin: 15px 0; line-height: 1;">✦ 🪷 ✦ 🪳 ✦</div>
+                            
+                            <div style="font-size: 15pt; line-height: 1.8; text-align: justify; margin: 35px 10px; color: #292524;">
+                                AN AMOUNT OF <span style="font-weight: bold; border-bottom: 1px solid #1c1917; padding: 0 4px; font-family: Arial, sans-serif; color: #b45309;">${formattedCashValue}</span> 
+                                HAS BEEN DONATED BY <span style="font-weight: bold; font-style: italic; border-bottom: 1px solid #1c1917; padding: 0 4px; font-family: monospace;">${donorId}</span> 
+                                IS HEREBY RECEIVED IN FERVOUR AND HARMONY IN PARTY FUND OF <span style="font-weight: bold; text-transform: uppercase; color: #15803d; border-bottom: 1px solid #1c1917; padding: 0 4px;">${selectedParty}</span>. 
+                                ACKNOWLEDGEMENT HEREBY.
+                            </div>
+                            
+                            <div style="margin-top: 55px; border-top: 1px dashed #d6d3d1; padding-top: 25px;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="width: 50%; text-align: left; vertical-align: bottom;">
+                                            <div style="font-size: 9pt; text-transform: uppercase; color: #78716c; font-family: Arial, sans-serif; line-height: 1.4;">
+                                                <div><strong>Cloud Storage Ledger:</strong> Verified and Logged</div>
+                                                <div><strong>Gateway Destination:</strong> 9612032475@kotakbank</div>
+                                            </div>
+                                        </td>
+                                        <td style="width: 50%; text-align: right; vertical-align: bottom;">
+                                            <div style="display: inline-block; text-align: center; width: 220px;">
+                                                <div style="font-family: 'Brush Script MT', cursive, sans-serif; font-size: 22pt; font-style: italic; color: #1e3a8a; margin-bottom: -5px; transform: rotate(-2deg);">
+                                                    ${selectedParty} Treasury
+                                                </div>
+                                                <div style="border-top: 1.5px solid #1c1917; margin-top: 5px; padding-top: 4px; font-size: 10pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; color: #1c1917;">
+                                                    SIGNED BY ${selectedParty}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+              order-zinc-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-yellow-500 font-mono">
                 </div>
                 
                 <div>
