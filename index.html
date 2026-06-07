@@ -19,6 +19,14 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
         }
+        /* Fix for html2pdf mobile rendering: keeping element accessible in DOM but out of viewport view */
+        .offscreen-container {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            width: 700px;
+            overflow: hidden;
+        }
     </style>
 </head>
 <body class="bg-split text-white min-h-screen flex flex-col justify-between font-sans selection:bg-orange-500 selection:text-white">
@@ -55,7 +63,7 @@
                     LOTUS
                 </span>
                 
-                <!-- QR Code Reference Element from 50255.jpg inserted here on the left panel -->
+                <!-- QR Code Reference Element from 50255.jpg -->
                 <div class="w-36 h-36 bg-white p-2 rounded-xl shadow-lg border border-orange-500/40 mb-4 flex items-center justify-center overflow-hidden">
                     <img src="50255.jpg" alt="Donation QR Code" class="w-full h-full object-contain">
                 </div>
@@ -75,12 +83,7 @@
                 <span class="bg-emerald-600 text-white font-black text-2xl px-10 py-1.5 rounded-xl uppercase tracking-widest shadow-xl border border-emerald-400/40 mb-14">
                     COCKROACH
                 </span>
-                
-      <!-- QR Code Reference Element from 50255.jpg inserted here on the left panel -->
-                <div class="w-36 h-36 bg-white p-2 rounded-xl shadow-lg border border-orange-500/40 mb-4 flex items-center justify-center overflow-hidden">
-                    <img src="50255.jpg" alt="Donation QR Code" class="w-full h-full object-contain">
-                </div>
-                
+
                 <!-- Donation Trigger Button -->
                 <button onclick="openDonationModal('COCKROACH')" 
                    class="mt-6 font-bold text-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-5 py-2.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-emerald-600/20 border border-emerald-500/30 flex items-center gap-2">
@@ -114,7 +117,7 @@
 
                 <div class="bg-zinc-950/60 border border-zinc-800 rounded-xl p-3 text-center">
                     <p class="text-xs text-zinc-400 font-medium">
-                       🫲⚖️🫱 Consolidated allocations must compute exactly to <span class="text-yellow-500 font-black">100</span> points.
+                        🫲⚖️🫱 Consolidated allocations must compute exactly to <span class="text-yellow-500 font-black">100</span> points.
                     </p>
                 </div>
 
@@ -170,9 +173,9 @@
     </div>
 
     <!-- ========================================================================= -->
-    <!-- HIDDEN PRISTINE CANVAS DESIGN ASPECT: DESIGNED CERTIFICATE LAYOUT -->
+    <!-- FIXED RENDERING CANVAS DESIGN ASPECT: DESIGNED CERTIFICATE LAYOUT -->
     <!-- ========================================================================= -->
-    <div style="display: none;">
+    <div class="offscreen-container">
         <div id="receipt-print-canvas" style="width: 700px; padding: 45px; background-color: #fafaf9; color: #1c1917; font-family: 'Times New Roman', Times, serif; border: 12px double #1c1917; box-sizing: border-box; position: relative;">
             <div style="border: 2px solid #78716c; padding: 30px; box-sizing: border-box; text-align: center; position: relative; background: #ffffff;">
                 <div style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.25em; color: #78716c; margin-bottom: 5px;">
@@ -302,26 +305,4 @@
                 // Step 3: Trigger PDF Download Stream Generation 
                 const canvasElement = document.getElementById('receipt-print-canvas');
                 const fileConfigurationOptions = {
-                    margin:       10,
-                    filename:     `Contribution_Receipt_${selectedParty}.pdf`,
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true, logging: false },
-                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
-
-                alert("Donor logged inside Firebase successfully! Downloading your structural Certificate Receipt PDF now...");
-                
-                html2pdf().set(fileConfigurationOptions).from(canvasElement).save().then(() => {
-                    // Step 4: Route interface directly to mobile core UPI applications automatically
-                    window.location.href = upiGatewayUrl;
-                    closeDonationModal();
-                });
-
-            } catch(err) {
-                console.error("Critical Interruption Error:", err);
-                alert("Failed to process transaction logic. Make sure your Firestore rules allow writes to the 'donations' collection.");
-            }
-        });
-    </script>
-</body>
-</html>
+                    margin:       0
