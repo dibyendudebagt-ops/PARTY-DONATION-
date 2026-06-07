@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Today's Online Voting & Contribution Hub</title>
+    <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2pdf.js Dependency to build and deliver client-side PDF receipts instantly -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         /* Immersive Split Background system matching original visual layout rules */
@@ -21,6 +23,7 @@
 </head>
 <body class="bg-split text-white min-h-screen flex flex-col justify-between font-sans selection:bg-orange-500 selection:text-white">
 
+    <!-- Global App Header Container Section -->
     <header class="text-center pt-8 pb-4 px-4">
         <h1 class="text-4xl md:text-6xl font-black tracking-wider uppercase drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] bg-clip-text bg-gradient-to-b from-white via-gray-200 to-gray-400">
             Today's Online Voting
@@ -30,16 +33,20 @@
         </p>
     </header>
 
+    <!-- Main Dynamic Application Workspace Framework -->
     <main class="flex-grow flex flex-col items-center justify-center my-4 px-4 gap-8">
         
+        <!-- Interactive Versus Arena Layout Block -->
         <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch relative">
             
+            <!-- Structural Absolute Center Floating "VS" Medallion Emblem -->
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none hidden md:flex">
                 <span class="bg-zinc-950 border-4 border-zinc-700 text-yellow-500 font-black italic text-4xl px-5 py-2.5 rounded-full shadow-[0_0_30px_rgba(234,179,8,0.2)] z-10">
                     VS
                 </span>
             </div>
 
+            <!-- Left Combatant Panel Asset: LOTUS (Orange Platform) -->
             <div class="glass-panel p-8 rounded-3xl border-2 border-orange-600/30 shadow-[0_10px_30px_rgba(234,88,12,0.15)] flex flex-col items-center text-center transition-all duration-300 hover:border-orange-500/60 group">
                 <div class="w-44 h-44 rounded-full bg-gradient-to-tr from-orange-600/10 to-amber-500/20 border-4 border-orange-500 flex items-center justify-center overflow-hidden mb-4 shadow-2xl group-hover:scale-105 transition-transform duration-300">
                     <span class="text-7xl drop-shadow-[0_0_15px_rgba(234,88,12,0.6)]">🪷</span>
@@ -48,29 +55,24 @@
                     LOTUS
                 </span>
                 
-                <div class="w-36 h-36 bg-white p-2 rounded-xl shadow-lg border border-orange-500/40 mb-4 flex items-center justify-center overflow-hidden">
-                    <img src="50255.jpg" alt="Donation QR Code" class="w-full h-full object-contain">
-                </div>
-                
-                <button type="button" onclick="window.openDonationModal('LOTUS')" 
+                <!-- Donation Trigger Button -->
+                <button onclick="openDonationModal('LOTUS')" 
                    class="font-bold text-sm bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white px-5 py-2.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-orange-600/20 border border-orange-500/30 flex items-center gap-2">
                     💸 Please Donate to support Lotus
                 </button>
             </div>
 
+            <!-- Right Combatant Panel Asset: COCKROACH (Green Platform) -->
             <div class="glass-panel p-8 rounded-3xl border-2 border-emerald-600/30 shadow-[0_10px_30px_rgba(16,185,129,0.15)] flex flex-col items-center text-center transition-all duration-300 hover:border-emerald-500/60 group">
                 <div class="w-44 h-44 rounded-full bg-gradient-to-tr from-emerald-600/10 to-teal-500/20 border-4 border-emerald-500 flex items-center justify-center overflow-hidden mb-6 shadow-2xl group-hover:scale-105 transition-transform duration-300">
                     <span class="text-7xl drop-shadow-[0_0_15px_rgba(16,185,129,0.6)]">🪳</span>
                 </div>
-                <span class="bg-emerald-600 text-white font-black text-2xl px-10 py-1.5 rounded-xl uppercase tracking-widest shadow-xl border border-emerald-400/40 mb-4">
+                <span class="bg-emerald-600 text-white font-black text-2xl px-10 py-1.5 rounded-xl uppercase tracking-widest shadow-xl border border-emerald-400/40 mb-14">
                     COCKROACH
                 </span>
 
-                <div class="w-36 h-36 bg-white p-2 rounded-xl shadow-lg border border-emerald-500/40 mb-4 flex items-center justify-center overflow-hidden">
-                    <img src="50255.jpg" alt="Donation QR Code" class="w-full h-full object-contain">
-                </div>
-                
-                <button type="button" onclick="window.openDonationModal('COCKROACH')" 
+                <!-- Donation Trigger Button -->
+                <button onclick="openDonationModal('COCKROACH')" 
                    class="mt-6 font-bold text-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-5 py-2.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-emerald-600/20 border border-emerald-500/30 flex items-center gap-2">
                     💸 Please Donate to support Cockroach
                 </button>
@@ -78,6 +80,7 @@
 
         </div>
 
+        <!-- Metric Score Voting Formulation Console Box -->
         <div class="w-full max-w-xl glass-panel border border-zinc-800 p-8 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
             <h3 class="text-center font-black text-yellow-500 tracking-wider uppercase mb-6 text-sm md:text-lg border-b border-zinc-800 pb-3">
                 🗳️ Poll Management Console
@@ -85,11 +88,13 @@
             
             <form id="voteForm" class="space-y-6">
                 <div class="grid grid-cols-2 gap-6">
+                    <!-- Lotus Score Assignment Frame -->
                     <div>
                         <label class="block text-xs text-orange-400 font-black uppercase mb-2 tracking-wider">Lotus Points (0-100)</label>
                         <input type="number" id="LotusPoints" min="0" max="100" placeholder="0" required
                                class="w-full bg-zinc-900/90 border-2 border-zinc-700 text-white px-4 py-3 rounded-xl focus:outline-none focus:border-orange-500 text-center font-black text-xl">
                     </div>
+                    <!-- Cockroach Score Assignment Frame -->
                     <div>
                         <label class="block text-xs text-green-400 font-black uppercase mb-2 tracking-wider">Cockroach Points (0-100)</label>
                         <input type="number" id="CockroachPoints" min="0" max="100" placeholder="0" required
@@ -99,7 +104,7 @@
 
                 <div class="bg-zinc-950/60 border border-zinc-800 rounded-xl p-3 text-center">
                     <p class="text-xs text-zinc-400 font-medium">
-                        🫲⚖️🫱 : Consolidated allocations must compute exactly to <span class="text-yellow-500 font-black">100</span> points.
+                        Mathematical Constraint: Consolidated allocations must compute exactly to <span class="text-yellow-500 font-black">100</span> points.
                     </p>
                 </div>
 
@@ -109,17 +114,24 @@
                 </button>
             </form>
         </div>
+        <!-- QR Code Reference Element from 50255.jpg inserted here on the left panel -->
+                <div class="w-36 h-36 bg-white p-2 rounded-xl shadow-lg border border-orange-500/40 mb-4 flex items-center justify-center overflow-hidden">
+                    <img src="50255.jpg" alt="Donation QR Code" class="w-full h-full object-contain">
+                </div>
     </main>
 
     <footer class="text-center pt-8 pb-4 text-xs text-zinc-600 font-semibold tracking-widest uppercase">
        🖲️ Interactive Automated Voting Matrix & Contribution Framework 🪎
     </footer>
 
+    <!-- ========================================================================= -->
+    <!-- COMPREHENSIVE MODAL CONTAINER FOR DONOR INFO INPUT COLLECTION -->
+    <!-- ========================================================================= -->
     <div id="donationModal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-md">
         <div class="bg-zinc-900 border-2 border-zinc-800 rounded-3xl w-full max-w-md p-6 shadow-2xl">
             <div class="flex justify-between items-center border-b border-zinc-800 pb-3 mb-4">
                 <h4 id="modalPartyTitle" class="text-xl font-black uppercase tracking-wider text-white">Party Funding Processing</h4>
-                <button type="button" onclick="window.closeDonationModal()" class="text-zinc-500 hover:text-white font-bold text-xl">&times;</button>
+                <button onclick="closeDonationModal()" class="text-zinc-500 hover:text-white font-bold text-xl">&times;</button>
             </div>
             
             <form id="modalForm" class="space-y-4">
@@ -151,6 +163,56 @@
         </div>
     </div>
 
+    <!-- ========================================================================= -->
+    <!-- HIDDEN PRISTINE CANVAS DESIGN ASPECT: DESIGNED CERTIFICATE LAYOUT -->
+    <!-- ========================================================================= -->
+    <div style="display: none;">
+        <div id="receipt-print-canvas" style="width: 700px; padding: 45px; background-color: #fafaf9; color: #1c1917; font-family: 'Times New Roman', Times, serif; border: 12px double #1c1917; box-sizing: border-box; position: relative;">
+            <div style="border: 2px solid #78716c; padding: 30px; box-sizing: border-box; text-align: center; position: relative; background: #ffffff;">
+                <div style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.25em; color: #78716c; margin-bottom: 5px;">
+                    Official Treasury Document
+                </div>
+                <div style="font-size: 26pt; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #1c1917; margin-bottom: 25px; border-bottom: 3px double #1c1917; padding-bottom: 15px;">
+                    Certificate of Contribution
+                </div>
+                <div style="font-size: 24pt; color: #d97706; margin: 15px 0; line-height: 1;">✦ 🪷 ✦ 🪳 ✦</div>
+                
+                <div style="font-size: 15pt; line-height: 1.8; text-align: justify; margin: 35px 10px; color: #292524;">
+                    AN AMOUNT OF <span style="font-weight: bold; border-bottom: 1px solid #1c1917; padding: 0 4px; font-family: Arial, sans-serif; color: #b45309;" id="rcpt-amount">₹0.00</span> 
+                    HAS BEEN DONATED BY <span style="font-weight: bold; font-style: italic; border-bottom: 1px solid #1c1917; padding: 0 4px; font-family: monospace;" id="rcpt-donor">UNIDENTIFIED_DONOR</span> 
+                    IS HEREBY RECEIVED IN FERVOUR AND HARMONY IN PARTY FUND OF <span style="font-weight: bold; text-transform: uppercase; color: #15803d; border-bottom: 1px solid #1c1917; padding: 0 4px;" id="rcpt-party-target">SPECIFIED_PARTY</span>. 
+                    ACKNOWLEDGEMENT HEREBY.
+                </div>
+                
+                <div style="margin-top: 65px; border-top: 1px dashed #d6d3d1; padding-top: 30px;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="width: 50%; text-align: left; vertical-align: bottom;">
+                                <div style="font-size: 9pt; text-transform: uppercase; color: #78716c; font-family: Arial, sans-serif;">
+                                    <div><strong>Cloud Storage Ledger:</strong> Verified and Logged</div>
+                                    <div><strong>Gateway Destination:</strong> 9612032475@kotakbank</div>
+                                </div>
+                            </td>
+                            <td style="width: 50%; text-align: right; vertical-align: bottom;">
+                                <div style="display: inline-block; text-align: center; width: 220px;">
+                                    <div style="font-family: 'Brush Script MT', cursive, sans-serif; font-size: 22pt; font-style: italic; color: #1e3a8a; margin-bottom: -5px; transform: rotate(-2deg);" id="rcpt-signature-script">
+                                        Authorized Signatory
+                                    </div>
+                                    <div style="border-top: 1.5px solid #1c1917; margin-top: 5px; padding-top: 4px; font-size: 10pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; color: #1c1917;">
+                                        SIGNED BY <span id="rcpt-party-signature">PARTY_LABEL</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- CLIENT SIDE ARCHITECTURE AND DATA PIPELINE INTEGRATION APPLICATION LOGIC -->
+    <!-- ========================================================================= -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -167,18 +229,6 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
-        // Explicit Global Scope Binding for Modules
-        window.openDonationModal = function(partyLabel) {
-            document.getElementById('modalSelectedParty').value = partyLabel;
-            document.getElementById('modalPartyTitle').innerText = `Contribute To ${partyLabel}`;
-            document.getElementById('donationModal').classList.remove('hidden');
-        };
-
-        window.closeDonationModal = function() {
-            document.getElementById('donationModal').classList.add('hidden');
-            document.getElementById('modalForm').reset();
-        };
 
         // Core Submission Matrix for Ballot Scoring
         document.getElementById('voteForm').addEventListener('submit', async (e) => {
@@ -205,104 +255,67 @@
             }
         });
 
+        // Global Window Modal Mapping Links
+        window.openDonationModal = function(partyLabel) {
+            document.getElementById('modalSelectedParty').value = partyLabel;
+            document.getElementById('modalPartyTitle').innerText = `Contribute To ${partyLabel}`;
+            document.getElementById('donationModal').classList.remove('hidden');
+        };
+
+        window.closeDonationModal = function() {
+            document.getElementById('donationModal').classList.add('hidden');
+            document.getElementById('modalForm').reset();
+        };
+
         // Donation Submission Handler: Saves donor id explicitly to Firebase + PDF Generation
         document.getElementById('modalForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const selectedParty = document.getElementById('modalSelectedParty').value || "PARTY";
-            const donorId = document.getElementById('donorIdentity').value || "ANONYMOUS";
-            const amount = document.getElementById('donorAmount').value || "0";
+            const selectedParty = document.getElementById('modalSelectedParty').value;
+            const donorId = document.getElementById('donorIdentity').value;
+            const amount = document.getElementById('donorAmount').value;
             
             const upiGatewayUrl = `upi://pay?pa=9612032475@kotakbank&pn=Voting%20Platform&am=${amount}&cu=INR&tn=Contribution%20Fund%20For%20${selectedParty}`;
             
-            // Step 1: Attempt logging transaction parameters and donor id directly to Cloud Firestore
             try {
+                // Step 1: Explicitly log transaction parameters and donor id directly to Cloud Firestore
                 await addDoc(collection(db, "donations"), {
                     donorId: donorId,
                     donatedPartyLabel: selectedParty,
                     donatedAmount: parseFloat(amount),
                     timestamp: serverTimestamp()
                 });
+                
+                // Step 2: Dynamically bind variables into print canvas structural metrics
+                document.getElementById('rcpt-amount').innerText = `₹${parseFloat(amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+                document.getElementById('rcpt-donor').innerText = donorId;
+                document.getElementById('rcpt-party-target').innerText = `${selectedParty}`;
+                document.getElementById('rcpt-party-signature').innerText = selectedParty;
+                document.getElementById('rcpt-signature-script').innerText = `${selectedParty} Treasury`;
+
+                // Step 3: Trigger PDF Download Stream Generation 
+                const canvasElement = document.getElementById('receipt-print-canvas');
+                const fileConfigurationOptions = {
+                    margin:       10,
+                    filename:     `Contribution_Receipt_${selectedParty}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                alert("Donor logged inside Firebase successfully! Downloading your structural Certificate Receipt PDF now...");
+                
+                html2pdf().set(fileConfigurationOptions).from(canvasElement).save().then(() => {
+                    // Step 4: Route interface directly to mobile core UPI applications automatically
+                    window.location.href = upiGatewayUrl;
+                    closeDonationModal();
+                });
+
             } catch(err) {
-                // Soft Fallback: Logs database security rule rejections to console but DOES NOT freeze app execution
-                console.warn("Firestore pipeline blocked by remote security rules. Advancing directly to layout compilation asset generation.", err);
+                console.error("Critical Interruption Error:", err);
+                alert("Failed to process transaction logic. Make sure your Firestore rules allow writes to the 'donations' collection.");
             }
-
-            // Step 2: Inject dynamic raw HTML print blueprint canvas template securely
-            const formattedCashValue = `₹${parseFloat(amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
-            const dynamicWorkspaceNode = document.createElement('div');
-            dynamicWorkspaceNode.id = "runtime-printout-wrapper";
-            
-            // Layout optimization setup protecting content against layout scale distortion cut-offs on viewports
-            dynamicWorkspaceNode.style.cssText = "position: absolute; left: 0; top: 0; width: 750px; z-index: -9999; visibility: visible; contain: content; background: #ffffff; overflow: hidden;";
-            
-            dynamicWorkspaceNode.innerHTML = `
-                <div id="receipt-print-canvas" style="width: 750px; padding: 40px; background-color: #fafaf9; color: #1c1917; font-family: 'Times New Roman', Times, serif; border: 12px double #1c1917; box-sizing: border-box;">
-                    <div style="border: 2px solid #78716c; padding: 30px; box-sizing: border-box; text-align: center; background: #ffffff;">
-                        <div style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.25em; color: #78716c; margin-bottom: 5px;">
-                            Official Treasury Document
-                        </div>
-                        <div style="font-size: 24pt; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #1c1917; margin-bottom: 25px; border-bottom: 3px double #1c1917; padding-bottom: 15px;">
-                            Certificate of Contribution
-                        </div>
-                        <div style="font-size: 24pt; color: #d97706; margin: 15px 0; line-height: 1;">✦ 🪷 ✦ 🪳 ✦</div>
-                        
-                        <div style="font-size: 15pt; line-height: 1.8; text-align: justify; margin: 35px 10px; color: #292524;">
-                            AN AMOUNT OF <span style="font-weight: bold; border-bottom: 1px solid #1c1917; padding: 0 4px; font-family: Arial, sans-serif; color: #b45309;">${formattedCashValue}</span> 
-                            HAS BEEN DONATED BY <span style="font-weight: bold; font-style: italic; border-bottom: 1px solid #1c1917; padding: 0 4px; font-family: monospace;">${donorId}</span> 
-                            IS HEREBY RECEIVED IN FERVOUR AND HARMONY IN PARTY FUND OF <span style="font-weight: bold; text-transform: uppercase; color: #15803d; border-bottom: 1px solid #1c1917; padding: 0 4px;">${selectedParty}</span>. 
-                            ACKNOWLEDGEMENT HEREBY.
-                        </div>
-                        
-                        <div style="margin-top: 55px; border-top: 1px dashed #d6d3d1; padding-top: 25px;">
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <tr>
-                                    <td style="width: 50%; text-align: left; vertical-align: bottom;">
-                                        <div style="font-size: 9pt; text-transform: uppercase; color: #78716c; font-family: Arial, sans-serif; line-height: 1.4;">
-                                            <div><strong>Cloud Storage Ledger:</strong> Verified and Logged</div>
-                                            <div><strong>Gateway Destination:</strong> 9612032475@kotakbank</div>
-                                        </div>
-                                    </td>
-                                    <td style="width: 50%; text-align: right; vertical-align: bottom;">
-                                        <div style="display: inline-block; text-align: center; width: 220px;">
-                                            <div style="font-family: 'Brush Script MT', cursive, sans-serif; font-size: 22pt; font-style: italic; color: #1e3a8a; margin-bottom: -5px; transform: rotate(-2deg);">
-                                                ${selectedParty} Treasury
-                                            </div>
-                                            <div style="border-top: 1.5px solid #1c1917; margin-top: 5px; padding-top: 4px; font-size: 10pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; color: #1c1917;">
-                                                SIGNED BY ${selectedParty}
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            document.body.appendChild(dynamicWorkspaceNode);
-            
-            // Step 3: Configure responsive execution choices for html2canvas
-            const canvasTargetElement = document.getElementById('receipt-print-canvas');
-            const cleanFileOptions = {
-                margin:       10,
-                filename:     `Contribution_Receipt_${selectedParty}.pdf`,
-                image:        { type: 'jpeg', quality: 1.0 },
-                html2canvas:  { 
-                    scale: 2, 
-                    useCORS: true, 
-                    logging: false,
-                    scrollX: 0,
-                    scrollY: 0,
-                    windowWidth: 750
-                },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            // Step 4: Run vector compilation stream
-            html2pdf().set(cleanFileOptions).from(canvasTargetElement).save().then(() => {
-                document.body.removeChild(dynamicWorkspaceNode);
-                window.closeDonationModal();
-                window.location.href = upiGatewayUrl;
-            }).catch(pdfError => {
-                if
+        });
+    </script>
+</body>
+</html>
