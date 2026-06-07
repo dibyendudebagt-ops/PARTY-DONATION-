@@ -56,7 +56,7 @@
                 </span>
                 
                 <!-- Donation Trigger Button -->
-                <button onclick="openDonationModal('LOTUS')" 
+                <button type="button" onclick="window.openDonationModal('LOTUS')" 
                    class="font-bold text-sm bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white px-5 py-2.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-orange-600/20 border border-orange-500/30 flex items-center gap-2">
                     💸 Please Donate to support Lotus
                 </button>
@@ -72,12 +72,29 @@
                 </span>
 
                 <!-- Donation Trigger Button -->
-                <button onclick="openDonationModal('COCKROACH')" 
+                <button type="button" onclick="window.openDonationModal('COCKROACH')" 
                    class="font-bold text-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-5 py-2.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-emerald-600/20 border border-emerald-500/30 flex items-center gap-2">
                     💸 Please Donate to support Cockroach
                 </button>
             </div>
 
+        </div>
+
+        <!-- Post-Payment Receipt Generation Console Box (Initially Hidden) -->
+        <div id="receiptVerificationBox" class="w-full max-w-xl glass-panel border-2 border-yellow-600/50 p-6 rounded-3xl shadow-2xl hidden text-center space-y-4">
+            <h3 class="font-black text-yellow-500 tracking-wider uppercase text-lg">
+                Verification Ledger Check
+            </h3>
+            <p class="text-sm text-zinc-300">
+                Your intent request was registered. Please confirm your mobile app transaction completed successfully to generate your document asset.
+            </p>
+            <div class="p-3 bg-zinc-950/80 rounded-xl text-xs text-zinc-400 border border-zinc-800">
+                Checking account matching transaction logs...
+            </div>
+            <button type="button" onclick="window.generateReceiptOnVerification()"
+                    class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black tracking-widest uppercase py-3 rounded-xl transition-all shadow-lg text-sm">
+                Download Certified Receipt Document
+            </button>
         </div>
 
         <!-- Metric Score Voting Formulation Console Box -->
@@ -114,10 +131,11 @@
                 </button>
             </form>
         </div>
-        <!-- QR Code Reference Element from 50255.jpg inserted here on the left panel -->
-                <div class="w-36 h-36 bg-white p-2 rounded-xl shadow-lg border border-orange-500/40 mb-4 flex items-center justify-center overflow-hidden">
-                    <img src="50255.jpg" alt="Donation QR Code" class="w-full h-full object-contain">
-                </div>
+
+        <!-- QR Code Reference Element from 50255.jpg -->
+        <div class="w-36 h-36 bg-white p-2 rounded-xl shadow-lg border border-zinc-800 mb-4 flex items-center justify-center overflow-hidden">
+            <img src="50255.jpg" alt="Donation QR Code" class="w-full h-full object-contain">
+        </div>
     </main>
 
     <footer class="text-center pt-8 pb-4 text-xs text-zinc-600 font-semibold tracking-widest uppercase">
@@ -131,7 +149,7 @@
         <div class="bg-zinc-900 border-2 border-zinc-800 rounded-3xl w-full max-w-md p-6 shadow-2xl">
             <div class="flex justify-between items-center border-b border-zinc-800 pb-3 mb-4">
                 <h4 id="modalPartyTitle" class="text-xl font-black uppercase tracking-wider text-white">Party Funding Processing</h4>
-                <button onclick="closeDonationModal()" class="text-zinc-500 hover:text-white font-bold text-xl">&times;</button>
+                <button type="button" onclick="window.closeDonationModal()" class="text-zinc-500 hover:text-white font-bold text-xl">&times;</button>
             </div>
             
             <form id="modalForm" class="space-y-4">
@@ -230,6 +248,55 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // Global state tracking variable metrics
+        let executionSessionState = null;
+
+        // Map functions to global execution scope so inline HTML button clicks evaluate correctly
+        window.openDonationModal = function(partyLabel) {
+            document.getElementById('modalSelectedParty').value = partyLabel;
+            document.getElementById('modalPartyTitle').innerText = `Contribute To ${partyLabel}`;
+            document.getElementById('donationModal').classList.remove('hidden');
+        };
+
+        window.closeDonationModal = function() {
+            document.getElementById('donationModal').classList.add('hidden');
+            document.getElementById('modalForm').reset();
+        };
+
+        window.generateReceiptOnVerification = function() {
+            if (!executionSessionState) {
+                alert("No runtime transaction context identified. Please proceed through initialization form sequence first.");
+                return;
+            }
+            
+            // Explicitly prompt admin check compliance validation mapping rules
+            const integrityCheck = confirm("Security Warning: Have you verified this transfer reached your account ledger manually?");
+            if (!integrityCheck) return;
+
+            // Dynamically bind variables into print canvas structural metrics
+            document.getElementById('rcpt-amount').innerText = `₹${parseFloat(executionSessionState.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+            document.getElementById('rcpt-donor').innerText = executionSessionState.donorId;
+            document.getElementById('rcpt-party-target').innerText = `${executionSessionState.selectedParty}`;
+            document.getElementById('rcpt-party-signature').innerText = executionSessionState.selectedParty;
+            document.getElementById('rcpt-signature-script').innerText = `${executionSessionState.selectedParty} Treasury`;
+
+            // Trigger PDF Download Stream Generation 
+            const canvasElement = document.getElementById('receipt-print-canvas');
+            const fileConfigurationOptions = {
+                margin:       10,
+                filename:     `Contribution_Receipt_${executionSessionState.selectedParty}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(fileConfigurationOptions).from(canvasElement).save().then(() => {
+                alert("Receipt downloaded successfully!");
+                document.getElementById('receiptVerificationBox').classList.add('hidden');
+                executionSessionState = null; // Flush validation tracking state securely
+            });
+        };
+
         // Core Submission Matrix for Ballot Scoring
         document.getElementById('voteForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -255,19 +322,7 @@
             }
         });
 
-        // Global Window Modal Mapping Links
-        window.openDonationModal = function(partyLabel) {
-            document.getElementById('modalSelectedParty').value = partyLabel;
-            document.getElementById('modalPartyTitle').innerText = `Contribute To ${partyLabel}`;
-            document.getElementById('donationModal').classList.remove('hidden');
-        };
-
-        window.closeDonationModal = function() {
-            document.getElementById('donationModal').classList.add('hidden');
-            document.getElementById('modalForm').reset();
-        };
-
-        // Donation Submission Handler: Saves donor id explicitly to Firebase + PDF Generation
+        // Donation Submission Handler: Saves request state and routes user target link securely
         document.getElementById('modalForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -278,42 +333,29 @@
             const upiGatewayUrl = `upi://pay?pa=9612032475@kotakbank&pn=Voting%20Platform&am=${amount}&cu=INR&tn=Contribution%20Fund%20For%20${selectedParty}`;
             
             try {
-                // Step 1: Explicitly log transaction parameters and donor id directly to Cloud Firestore
+                // Step 1: Record request sequence entry with a default unverified indicator parameter
                 await addDoc(collection(db, "donations"), {
                     donorId: donorId,
                     donatedPartyLabel: selectedParty,
                     donatedAmount: parseFloat(amount),
+                    settlementVerified: false, 
                     timestamp: serverTimestamp()
                 });
                 
-                // Step 2: Dynamically bind variables into print canvas structural metrics
-                document.getElementById('rcpt-amount').innerText = `₹${parseFloat(amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
-                document.getElementById('rcpt-donor').innerText = donorId;
-                document.getElementById('rcpt-party-target').innerText = `${selectedParty}`;
-                document.getElementById('rcpt-party-signature').innerText = selectedParty;
-                document.getElementById('rcpt-signature-script').innerText = `${selectedParty} Treasury`;
+                // Keep parameters cached in reactive state architecture
+                executionSessionState = { selectedParty, donorId, amount };
 
-                // Step 3: Trigger PDF Download Stream Generation 
-                const canvasElement = document.getElementById('receipt-print-canvas');
-                const fileConfigurationOptions = {
-                    margin:       10,
-                    filename:     `Contribution_Receipt_${selectedParty}.pdf`,
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true, logging: false },
-                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
+                // Step 2: Swap visibility interfaces to reveal authorization verification console block
+                document.getElementById('receiptVerificationBox').classList.remove('hidden');
+                window.closeDonationModal();
 
-                alert("Donor logged inside Firebase successfully! Downloading your structural Certificate Receipt PDF now...");
-                
-                html2pdf().set(fileConfigurationOptions).from(canvasElement).save().then(() => {
-                    // Step 4: Route interface directly to mobile core UPI applications automatically
-                    window.location.href = upiGatewayUrl;
-                    closeDonationModal();
-                });
+                // Step 3: Direct phone view towards device localized payment application intent handlers
+                alert("Redirecting to your native UPI Payment applications to execute transfer safely...");
+                window.location.href = upiGatewayUrl;
 
-            } catch(err) {
-                console.error("Critical Interruption Error:", err);
-                alert("Failed to process transaction logic. Make sure your Firestore rules allow writes to the 'donations' collection.");
+            } catch (error) {
+                console.error("Infrastructure Write Failure:", error);
+                alert("Transaction processing failed. Ensure remote database connection parameters are correctly mapped.");
             }
         });
     </script>
