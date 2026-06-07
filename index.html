@@ -80,22 +80,38 @@
             </div>
 
             <!-- ========================================================================= -->
+            <!-- NEW: LOST RECEIPT RETRIEVAL & LOOKUP SEARCH UTILITY                      -->
+            <!-- ========================================================================= -->
+            <div class="w-full max-w-xl glass-panel border border-zinc-800 p-5 rounded-3xl shadow-xl space-y-3">
+                <p class="text-center text-xs font-black uppercase tracking-wider text-amber-500">
+                    🔍 Lost your link? Track Donation & Print Receipt
+                </p>
+                <div class="flex gap-2">
+                    <input type="text" id="userLookupInvoiceId" placeholder="Paste your generated Transaction ID here..." class="flex-grow bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-amber-500 font-mono">
+                    <button type="button" onclick="window.searchExistingDonation()" class="bg-zinc-800 hover:bg-zinc-700 border border-zinc-600 text-white font-bold text-xs px-4 rounded-xl transition-all">
+                        Search Ledger
+                    </button>
+                </div>
+            </div>
+
+            <!-- ========================================================================= -->
             <!-- LIVE DONOR VERIFICATION & PRINT WINDOW PANEL (USER SIDE)                  -->
             <!-- ========================================================================= -->
-            <div id="donorLiveReceiptPanel" class="w-full max-w-xl glass-panel border border-zinc-800 p-6 rounded-3xl shadow-2xl hidden text-center space-y-4">
+            <div id="donorLiveReceiptPanel" class="w-full max-w-xl glass-panel border-2 border-yellow-600/50 p-6 rounded-3xl shadow-2xl hidden text-center space-y-4 animate-fadeIn">
                 <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
-                    <span class="text-xs font-mono text-zinc-400">Track ID: <span id="trackInvoiceId" class="text-zinc-200"></span></span>
+                    <span class="text-xs font-mono text-zinc-400">Track ID: <span id="trackInvoiceId" class="text-yellow-500 font-bold select-all"></span></span>
                     <span id="trackStatusBadge" class="px-2 py-0.5 rounded text-[10px] font-black uppercase">Pending Approval</span>
                 </div>
                 
-                <div class="py-4">
-                    <p class="text-sm text-zinc-300">Target Transfer Amount: <span class="text-yellow-500 font-bold font-mono text-base" id="trackTargetAmount">₹0.00</span></p>
-                    <p class="text-xs text-zinc-500 mt-1">Registered Owner Identity Key: <span class="font-mono" id="trackDonorId"></span></p>
+                <div class="py-2">
+                    <p class="text-sm text-zinc-300">Target Transfer Amount: <span class="text-emerald-400 font-bold font-mono text-base" id="trackTargetAmount">₹0.00</span></p>
+                    <p class="text-xs text-zinc-400 mt-1">Party Beneficiary: <span class="font-black" id="trackTargetParty"></span></p>
+                    <p class="text-xs text-zinc-500 mt-0.5">Registered Owner Identity Key: <span class="font-mono" id="trackDonorId"></span></p>
                 </div>
 
                 <!-- Conditional Rendering UI Component Layer based on Admin Settlement status -->
                 <div id="receiptPlaceholderBox" class="p-4 bg-zinc-950/40 rounded-xl border border-zinc-800/80 text-zinc-500 text-xs italic font-medium">
-                    ⏳ Waiting for Admin validation check... The download module turns active automatically when verified.
+                    ⏳ Waiting for Admin validation check... The download module turns active automatically when verified. Keep this tab open or save your Track ID!
                 </div>
 
                 <div id="receiptActionBox" class="hidden">
@@ -180,6 +196,7 @@
                     <thead>
                         <tr class="border-b border-zinc-800 text-zinc-400 uppercase tracking-wider font-mono bg-zinc-950/50">
                             <th class="p-3">Timestamp</th>
+                            <th class="p-3">Transaction ID / Track ID</th>
                             <th class="p-3">Donor ID / UPI Platform</th>
                             <th class="p-3">Target Party</th>
                             <th class="p-3">Declared Value</th>
@@ -189,7 +206,7 @@
                     </thead>
                     <tbody id="adminLiveLedgerTableBody" class="divide-y divide-zinc-800/60 font-medium">
                         <tr>
-                            <td colspan="6" class="p-8 text-center text-zinc-500 font-mono">Awaiting stream processing from Cloud storage layer...</td>
+                            <td colspan="7" class="p-8 text-center text-zinc-500 font-mono">Awaiting stream processing from Cloud storage layer...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -283,7 +300,7 @@
     <!-- ========================================================================= -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, doc, updateDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, getDoc, updateDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAn5sKpnBd4GzB2I2RdFafJ7iuSVbd73L0",
@@ -345,12 +362,16 @@
             document.getElementById('trackInvoiceId').innerText = documentId;
 
             activeUserTrackingUnsubscribe = onSnapshot(doc(db, "donations", documentId), (docSnapshot) => {
-                if (!docSnapshot.exists()) return;
+                if (!docSnapshot.exists()) {
+                    alert("The record link could not be located in database records.");
+                    return;
+                }
                 
                 const data = docSnapshot.data();
                 latestTrackedObjectCache = data; // Keep parameters cache safe for canvas formatting
 
                 document.getElementById('trackTargetAmount').innerText = `₹${parseFloat(data.donatedAmount).toFixed(2)}`;
+                document.getElementById('trackTargetParty').innerText = data.donatedPartyLabel;
                 document.getElementById('trackDonorId').innerText = data.donorId;
 
                 const badge = document.getElementById('trackStatusBadge');
@@ -370,6 +391,31 @@
                 }
             });
         }
+
+        // NEW FEATURE: Allows user to paste their Document ID and reload state logic stream!
+        window.searchExistingDonation = async function() {
+            const searchInputVal = document.getElementById('userLookupInvoiceId').value.trim();
+            if (!searchInputVal) {
+                alert("Please provide a valid transaction index tracking key.");
+                return;
+            }
+
+            try {
+                const testDocRef = doc(db, "donations", searchInputVal);
+                const testSnapshot = await getDoc(testDocRef);
+
+                if (testSnapshot.exists()) {
+                    // Re-engage active listeners securely
+                    monitorDonationStatusAsUser(searchInputVal);
+                    document.getElementById('donorLiveReceiptPanel').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert("No receipt matched this structural key inside Firebase. Double-check your spelling.");
+                }
+            } catch (err) {
+                console.error("Lookup exception:", err);
+                alert("Error scanning remote cloud databases.");
+            }
+        };
 
         // Action Interface for Client Printing Execution Flow
         window.printUserReceiptLocally = async function() {
@@ -429,7 +475,8 @@
                     markupRowElement.className = "border-b border-zinc-800/40 hover:bg-zinc-900/30 transition-colors";
                     markupRowElement.innerHTML = `
                         <td class="p-3 text-zinc-400 font-mono">${recordDateString}</td>
-                        <td class="p-3 text-white font-mono font-bold">${trackingData.donorId}</td>
+                        <td class="p-3 text-yellow-500 font-mono font-bold select-all">${recordId}</td>
+                        <td class="p-3 text-white font-mono">${trackingData.donorId}</td>
                         <td class="p-3"><span class="${trackingData.donatedPartyLabel === 'LOTUS' ? 'text-orange-400':'text-emerald-400'} font-black">${trackingData.donatedPartyLabel}</span></td>
                         <td class="p-3 text-yellow-500 font-black font-mono">₹${amountValue.toFixed(2)}</td>
                         <td class="p-3 text-center">
@@ -451,7 +498,7 @@
                 document.getElementById('adminPendingRequestsCount').innerText = `${runningPendingRequests} Request${runningPendingRequests !== 1 ? 's':''}`;
                 
                 if (snapshot.empty) {
-                    tableBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-zinc-600 font-mono">No contribution entries currently detected in database storage.</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-zinc-600 font-mono">No contribution entries currently detected in database storage.</td></tr>`;
                 }
             });
         }
@@ -521,6 +568,9 @@
                 
                 // Initialize the real-time tracking interface on the user's screen
                 monitorDonationStatusAsUser(newDocReference.id);
+                
+                // Alert the user with their tracking number explicitly so they can note it down
+                alert(`Transaction logged into ledger verification queue!\n\nYOUR TRANSACTION ID IS:\n${newDocReference.id}\n\nCopy this ID. If you close this tab, use it in the search bar below to retrieve your download receipt.`);
                 
                 // Execute redirection mapping protocols
                 window.location.href = upiGatewayUrl;
